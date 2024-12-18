@@ -1,0 +1,41 @@
+---
+title: "Examen"
+author: "Adiaratou"
+date: "2024-12-18"
+output: html_document
+---
+
+
+## Création de la fonction
+```{r}
+library(dplyr)
+library(lubridate)
+lecture<- function(mypath="/home/UCA/amndiaye13/prog_stat2/exam_data",start_date,end_date){
+
+  files<-list.files(path=mypath,full.names=TRUE, pattern="\\.csv$")
+  
+  filtrer<-function(file){
+    donnee<- read.csv(file,header = TRUE)
+    donnee$date<-ymd(donnee$date)
+    donnee %>% filter(date>= ymd(start_date) & date<=ymd(end_date))
+      
+  }
+  resultat<-files %>%lapply(filtrer) %>% bind_rows()
+  return(resultat)
+  }
+data<-lecture(mypath="/home/UCA/amndiaye13/prog_stat2/exam_data",start_date = "2020-01-01",end_date = "2024-12-31")
+
+```
+
+## Visualisation
+```{r}
+library(tidyverse)
+data %>%group_by(an) %>% 
+  summarise(somme_vente_par_an=sum(nb_de_ventes)) %>% 
+  ggplot(.,aes(x=an, y=somme_vente_par_an))+
+  geom_bar(stat="identity", fill="steelblue") +
+  geom_text(aes(label=somme_vente_par_an), vjust=1.6, color="white", size=3.5)+ theme_minimal()+
+  labs(x= "année",
+       y = "nombre de vente",
+       title= "nombre de vente en fonction des années")
+```
